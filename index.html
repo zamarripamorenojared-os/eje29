@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Par o Impar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #f5f4f0;
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* Fondo con puntos */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, #ccc 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.5;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    /* Tarjeta principal */
+    .card {
+      background: #fff;
+      border: 2px solid #1a1a1a;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 6px 6px 0 #1a1a1a;
+    }
+
+    /* Header de la tarjeta */
+    .card-header {
+      background: #1a1a1a;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      background: #f5f4f0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* Cuerpo */
+    .card-body {
+      padding: 2rem;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      height: 52px;
+      border: 2px solid #1a1a1a;
+      border-radius: 12px;
+      background: #f5f4f0;
+      font-family: 'Space Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      padding: 0 16px;
+      outline: none;
+      transition: background 0.15s, border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input[type="number"]:focus {
+      background: #eef9f0;
+      border-color: #22c55e;
+    }
+
+    .btn {
+      height: 52px;
+      padding: 0 22px;
+      background: #1a1a1a;
+      color: #fff;
+      border: 2px solid #1a1a1a;
+      border-radius: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      white-space: nowrap;
+      box-shadow: 3px 3px 0 #ccc;
+    }
+
+    .btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 #ccc;
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #ccc;
+    }
+
+    .error {
+      display: none;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #dc2626;
+      padding: 8px 12px;
+      background: #fef2f2;
+      border: 1.5px solid #fca5a5;
+      border-radius: 8px;
+    }
+
+    /* Panel resultado */
+    .result-panel {
+      display: none;
+      margin-top: 1.5rem;
+      border: 2px solid #1a1a1a;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .result-panel.show {
+      display: block;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.92) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .result-top {
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .result-top.par   { background: #f0fdf4; }
+    .result-top.impar { background: #fff7ed; }
+
+    .result-word {
+      font-size: clamp(2.2rem, 10vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .result-top.par   .result-word { color: #16a34a; }
+    .result-top.impar .result-word { color: #ea580c; }
+
+    .result-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 2px solid;
+      white-space: nowrap;
+    }
+
+    .result-top.par   .result-badge { color: #16a34a; border-color: #16a34a; background: #dcfce7; }
+    .result-top.impar .result-badge { color: #ea580c; border-color: #ea580c; background: #ffedd5; }
+
+    .result-bottom {
+      background: #fff;
+      border-top: 2px solid #1a1a1a;
+      padding: 1rem 1.75rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    .stat-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .stat + .stat {
+      padding-left: 1rem;
+      border-left: 2px solid #f0eeea;
+    }
+
+    /* Historial */
+    .history-section {
+      margin-top: 1.5rem;
+    }
+
+    .history-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f9f8f5;
+      border: 1.5px solid #e8e6e0;
+      border-radius: 10px;
+      font-size: 13px;
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .history-num {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .history-tag {
+      font-weight: 600;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .history-tag.par   { background: #dcfce7; color: #16a34a; }
+    .history-tag.impar { background: #ffedd5; color: #ea580c; }
+
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 12px;
+      color: #bbb;
+      font-family: 'Space Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="card">
+
+    <div class="card-header">
+      <div class="header-icon">🔢</div>
+      <div class="header-text">
+        <h1>¿Par o Impar?</h1>
+        <p>n % 2 === 0 → Par · n % 2 !== 0 → Impar</p>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <label class="input-label" for="numInput">Ingresa un número entero</label>
+      <div class="input-group">
+        <input type="number" id="numInput" placeholder="ej. 7" step="1" autocomplete="off" />
+        <button class="btn" onclick="verificar()">Verificar</button>
+      </div>
+      <div class="error" id="errorMsg">⚠ Ingresa un número entero válido.</div>
+
+      <!-- Resultado -->
+      <div class="result-panel" id="resultPanel">
+        <div class="result-top" id="resultTop">
+          <span class="result-word" id="resultWord"></span>
+          <span class="result-badge" id="resultBadge"></span>
+        </div>
+        <div class="result-bottom">
+          <div class="stat">
+            <span class="stat-label">Número</span>
+            <span class="stat-value" id="statNum"></span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Operación</span>
+            <span class="stat-value" id="statOp"></span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Resto</span>
+            <span class="stat-value" id="statResto"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial -->
+      <div class="history-section" id="historySection" style="display:none;">
+        <p class="history-title">Historial</p>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+
+  </div>
+  <p class="footer">Presiona Enter para verificar</p>
+</div>
+
+<script>
+  const history = [];
+
+  function verificar() {
+    const input = document.getElementById('numInput');
+    const errorMsg = document.getElementById('errorMsg');
+    const resultPanel = document.getElementById('resultPanel');
+    const val = input.value.trim();
+
+    errorMsg.style.display = 'none';
+    resultPanel.classList.remove('show');
+    void resultPanel.offsetWidth;
+
+    if (val === '' || isNaN(Number(val)) || val.includes('.')) {
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    const n = parseInt(val, 10);
+    const resto = ((n % 2) + 2) % 2; // maneja negativos
+    const esPar = resto === 0;
+    const tipo = esPar ? 'par' : 'impar';
+    const palabra = esPar ? 'Par' : 'Impar';
+
+    // Panel resultado
+    const resultTop = document.getElementById('resultTop');
+    resultTop.className = 'result-top ' + tipo;
+    document.getElementById('resultWord').textContent = palabra;
+    document.getElementById('resultBadge').textContent = esPar ? 'Divisible por 2' : 'No divisible por 2';
+    document.getElementById('resultBadge').className = 'result-badge';
+    document.getElementById('statNum').textContent = n;
+    document.getElementById('statOp').textContent = n + ' % 2';
+    document.getElementById('statResto').textContent = resto;
+    resultPanel.style.display = 'block';
+    resultPanel.classList.add('show');
+
+    // Historial (máx 5)
+    history.unshift({ n, palabra, tipo });
+    if (history.length > 5) history.pop();
+
+    const section = document.getElementById('historySection');
+    const list = document.getElementById('historyList');
+    section.style.display = 'block';
+    list.innerHTML = history.map(h =>
+      `<div class="history-item">
+        <span class="history-num">${h.n}</span>
+        <span class="history-tag ${h.tipo}">${h.palabra}</span>
+      </div>`
+    ).join('');
+
+    input.value = '';
+    input.focus();
+  }
+
+  document.getElementById('numInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') verificar();
+  });
+</script>
+
+</body>
+</html>
